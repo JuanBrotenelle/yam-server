@@ -5,7 +5,6 @@ import { updateTotalCoins } from './modules/totalCoinsstore';
 
 
 cron.schedule('0 0 * * *', async () => {
-  console.log('Cron job started');
 
   try {
     const users = await User.find();
@@ -13,7 +12,6 @@ cron.schedule('0 0 * * *', async () => {
       await clearInactiveBonuses(user.userId);
       await assignBonuses(user.userId);
     }
-    console.log('Бонусы начислены всем игрокам');
   } catch (error) {
     console.error('Ошибка при начислении бонусов:', error);
   }
@@ -30,14 +28,12 @@ cron.schedule('0 * * * *', async () => {
       await user.save();
     }
 
-    console.log('Начисление монет завершено.');
   } catch (error) {
     console.error('Ошибка при начислении монет:', error);
   }
 });
 
 cron.schedule('* * * * *', async () => {
-  console.log('Подсчет общего количества монет начался.');
 
   try {
     const result = await User.aggregate([
@@ -50,7 +46,6 @@ cron.schedule('* * * * *', async () => {
       updateTotalCoins(0);
     }
 
-    console.log(`Суммарное количество монет обновлено: ${result[0]?.total || 0}`);
   } catch (error) {
     console.error('Ошибка при подсчете общего количества монет:', error);
   }

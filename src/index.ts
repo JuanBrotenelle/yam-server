@@ -9,7 +9,7 @@ import totalCoins from './routes/totalcoins';
 
 dotenv.config();
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: false });
 
 fastify.get('/healthcheck', async (request, reply) => {
     return { status: 'ok' };
