@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface IBonus extends Document {
-  _id: Types.ObjectId; // Убедитесь, что _id имеет тип ObjectId
+  _id: Types.ObjectId;
   type: string;
   value: number;
   photoUrl?: string;

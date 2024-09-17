@@ -44,7 +44,7 @@ const UserSchema: Schema<IUser> = new Schema({
   photoUrl: { type: String },
   token: { type: String, required: true },
   bonuses: {
-    gifts: [{ type: Schema.Types.Mixed }], // Используйте Mixed для хранения объектов бонусов
+    gifts: [{ type: Schema.Types.Mixed }],
     default: [
       {
         type: {
