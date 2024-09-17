@@ -1,15 +1,16 @@
----
 meta:
-  environment: node
+  environment: nodejs
   toolchain:
-    name: npm
-    version: 18
+    name: node
+    version: 18 # Укажите версию Node.js, которую вы используете
+
 build:
   skip: false
   artifacts:
-    '*': /
+    "*": / # Указывает, что все файлы будут включены в сборку
+
 run:
-  scriptName: index.ts
-  command: npm run start
-  persistenceMount: /data
-  containerPort: 3000
+  scriptName: src/index.ts # Указывает путь к вашему основному файлу TypeScript
+  command: npx ts-node src/index.ts # Запускает приложение с помощью ts-node
+  persistenceMount: /data # Укажите путь для постоянного хранилища, если нужно
+  containerPort: 3000 # Указывает порт, на котором приложение будет слушать
