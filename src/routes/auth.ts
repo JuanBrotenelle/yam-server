@@ -58,7 +58,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
       user = new User({
         userId: userData.id,
-        isBot: userData.is_bot,
+        isBot: userData.is_bot !== undefined ? userData.is_bot : false,
         firstName: userData.first_name,
         lastName: userData.last_name,
         username: userData.username,
