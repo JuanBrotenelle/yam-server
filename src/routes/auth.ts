@@ -107,6 +107,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     user = await User.findOne({ userId: userData.id });
 
     reply.send({
+      userId: user?.userId,
       token: user?.token,
       referals: user?.referals,
       bonuses: user?.bonuses,
