@@ -2,53 +2,46 @@ import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
 import { User } from '../models/User';
 import { assignBonuses } from '../controllers/bonusGenerator';
 import Bonus, { IBonus } from '../models/Bonus';
-
+import validateTelegramData from '../controllers/validateTelegramData'; // Импорт функции валидации
 
 async function syncGiftsBonuses(userId: number) {
   try {
-    
     const user = await User.findOne({ userId });
     if (!user) {
       throw new Error(`User with ID ${userId} not found`);
     }
 
-   
     const allGifts: IBonus[] = await Bonus.find({});
-
-    
     const giftsToAdd = allGifts.filter(gift => {
       return !user.bonuses.gifts.some(userGift => userGift._id.equals(gift._id));
     });
 
-    
     if (giftsToAdd.length > 0) {
       user.bonuses.gifts.push(...giftsToAdd);
       await user.save();
-    } 
+    }
   } catch (error) {
     console.error('Error synchronizing gifts bonuses:', error);
   }
 }
 
-
-
 interface StartRequestBody {
-  id: number;
-  is_bot: boolean;
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  language_code?: string;
-  is_premium: boolean;
-  added_to_attachment_menu?: boolean;
-  allows_write_to_pm?: boolean;
-  photo_url?: string;
-  referalLink?: string;
+  initData: string; // Поле для initData
 }
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post('/start', async (request: FastifyRequest<{ Body: StartRequestBody }>, reply: FastifyReply) => {
-    const userData = request.body;
+    const { initData } = request.body;
+
+    const validatedData = validateTelegramData(initData);
+
+    if (!validatedData) {
+      reply.status(400).send({ error: 'Invalid Telegram data' });
+      return;
+    }
+
+    const ReferalLink = validatedData.start_params;
+    const userData = validatedData.user;
 
     if (!userData.id) {
       reply.status(400).send({ error: 'User ID is required' });
@@ -73,10 +66,10 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         isPremium: userData.is_premium,
         photoUrl: userData.photo_url,
         token: token,
-        referalLink: userData.referalLink,
+        referalLink: ReferalLink,
       });
 
-      if (userData.referalLink) {
+      if (ReferalLink) {
         const inviter = await User.findOne({ userId: user.referalLink });
 
         if (inviter) {
@@ -108,7 +101,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         console.error("Error assigning bonuses:", error);
       }
     }
-
 
     await syncGiftsBonuses(user.userId);
 
