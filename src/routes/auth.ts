@@ -114,12 +114,14 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     await syncGiftsBonuses(user.userId);
 
+    user = await User.findOne({ userId: userData.id });
+
     reply.send({
-      token: user.token,
-      referals: user.referals,
-      bonuses: user.bonuses,
-      coins: user.coins,
-      hourlyIncome: user.hourlyIncome,
+      token: user?.token,
+      referals: user?.referals,
+      bonuses: user?.bonuses,
+      coins: user?.coins,
+      hourlyIncome: user?.hourlyIncome,
     });
   });
 };
