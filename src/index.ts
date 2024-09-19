@@ -24,7 +24,7 @@ fastify.get('/healthcheck', async (request, reply) => {
   
 
 fastify.register(cors, {
-    origin: 'https://yamton.space/',
+    origin: 'https://yamton.space',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
