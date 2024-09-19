@@ -3,31 +3,28 @@ import { User } from '../models/User';
 import { assignBonuses } from '../controllers/bonusGenerator';
 import Bonus, { IBonus } from '../models/Bonus';
 
-// Добавим проверку совпадения бонусов у пользователя и в коллекции gifts
+
 async function syncGiftsBonuses(userId: number) {
   try {
-    // Найти пользователя и загрузить связанные бонусы
+    
     const user = await User.findOne({ userId });
     if (!user) {
       throw new Error(`User with ID ${userId} not found`);
     }
 
-    // Загрузить все доступные бонусы
+   
     const allGifts: IBonus[] = await Bonus.find({});
 
-    // Найти бонусы, которые нужно добавить
+    
     const giftsToAdd = allGifts.filter(gift => {
       return !user.bonuses.gifts.some(userGift => userGift._id.equals(gift._id));
     });
 
-    // Если есть бонусы для добавления, добавляем их
+    
     if (giftsToAdd.length > 0) {
       user.bonuses.gifts.push(...giftsToAdd);
       await user.save();
-      console.log(`Синхронизированы бонусы для пользователя ${user.firstName}`);
-    } else {
-      console.log('Бонусы уже синхронизированы');
-    }
+    } 
   } catch (error) {
     console.error('Error synchronizing gifts bonuses:', error);
   }
@@ -61,6 +58,11 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     let user = await User.findOne({ userId: userData.id });
 
     if (!user) {
+      const token = fastify.jwt.sign({
+        userId: userData.id,
+        isPremium: userData.is_premium,
+      });
+
       user = new User({
         userId: userData.id,
         isBot: userData.is_bot,
@@ -70,7 +72,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         languageCode: userData.language_code,
         isPremium: userData.is_premium,
         photoUrl: userData.photo_url,
-        token: `Bearer ${userData.id}-token`,
+        token: token,
         referalLink: userData.referalLink,
       });
 
@@ -86,11 +88,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
             isPremium: user.isPremium,
           });
 
-          if (user.isPremium) {
-            inviter.hourlyIncome += 0.050; 
-          } else {
-            inviter.hourlyIncome += 0.010;
-          }
+          inviter.hourlyIncome += user.isPremium ? 0.050 : 0.010;
 
           await inviter.save();
         }

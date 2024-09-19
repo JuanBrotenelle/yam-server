@@ -6,10 +6,17 @@ import dotenv from 'dotenv';
 import './cronJobs';
 import coins from './routes/coins';
 import totalCoins from './routes/totalcoins';
+import jwt from 'fastify-jwt';
+
 
 dotenv.config();
 
 const fastify = Fastify({ logger: false });
+
+fastify.register(jwt, {
+  secret: '8dSSH2kdc21mMD4'
+});
+
 
 fastify.get('/healthcheck', async (request, reply) => {
     return { status: 'ok' };
@@ -17,7 +24,7 @@ fastify.get('/healthcheck', async (request, reply) => {
   
 
 fastify.register(cors, {
-    origin: '*',
+    origin: 'https://yamton.space/',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });

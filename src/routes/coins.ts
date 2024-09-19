@@ -3,7 +3,21 @@ import { User } from '../models/User';
 import mongoose from 'mongoose';
 
 const bonusRoutes: FastifyPluginAsync = async (fastify) => {
-  
+
+  fastify.addHook('preHandler', async (request, reply) => {
+    const { token } = request.body as { token?: string };
+    if (!token) {
+      reply.status(403).send({ error: 'Токен отсутствует' });
+      return;
+    }
+
+    try {
+      await fastify.jwt.verify(token);
+    } catch (err) {
+      reply.status(403).send({ error: 'Неверный токен' });
+    }
+  });
+
   async function activateBonus(
     userId: number,
     bonusId: string,
@@ -13,90 +27,77 @@ const bonusRoutes: FastifyPluginAsync = async (fastify) => {
     if (!mongoose.Types.ObjectId.isValid(bonusId)) {
       throw new Error('Неверный id бонуса');
     }
-  
-    // Найти пользователя и бонус
+
     const user = await User.findOne({
       userId,
       'bonuses.default._id': bonusId,
-      'bonuses.default.status': 'inactive' // Проверяем, что бонус имеет статус inactive
+      'bonuses.default.status': 'inactive'
     });
-  
+
     if (!user) {
       throw new Error('Бонус не найден или уже использован');
     }
-  
-    // Логирование для отладки
+
     console.log(`Found user with bonus:`, user);
-  
-    // Обновляем статус бонуса
+
     const updatedUser = await User.updateOne(
       { userId, 'bonuses.default._id': bonusId },
       { $set: { 'bonuses.default.$.status': 'used' } }
     );
-  
-    // Логирование для отладки
+
     console.log(`Update result:`, updatedUser);
-  
+
     if (updatedUser.modifiedCount === 0) {
       throw new Error('Ошибка активации бонуса');
     }
   }
 
-async function activateGift(
-  userId: number,
-  bonusId: string,
-  type: 'coins' | 'hourly_income' | 'multiplier',
-  value: number
-): Promise<void> {
-  console.log('Input params:', { userId, bonusId, type, value });
+  async function activateGift(
+    userId: number,
+    bonusId: string,
+    type: 'coins' | 'hourly_income' | 'multiplier',
+    value: number
+  ): Promise<void> {
+    console.log('Input params:', { userId, bonusId, type, value });
 
-  // Проверяем, что bonusId валиден и преобразуем его в ObjectId
-  const objectId = mongoose.Types.ObjectId.isValid(bonusId) ? new mongoose.Types.ObjectId(bonusId) : null;
-  if (!objectId) {
-    throw new Error('Неверный id бонуса');
+    const objectId = mongoose.Types.ObjectId.isValid(bonusId) ? new mongoose.Types.ObjectId(bonusId) : null;
+    if (!objectId) {
+      throw new Error('Неверный id бонуса');
+    }
+
+    const user = await User.findOne({
+      userId,
+      'bonuses.gifts._id': objectId,
+      'bonuses.gifts.status': 'inactive'
+    });
+
+    console.log('Found user:', user);
+
+    if (!user) {
+      throw new Error('Бонус не найден или уже использован');
+    }
+
+    const updatedUser = await User.updateOne(
+      { userId, 'bonuses.gifts._id': objectId },
+      { $set: { 'bonuses.gifts.$.status': 'used' } }
+    );
+
+    console.log('Update result:', updatedUser);
+
+    if (updatedUser.modifiedCount === 0) {
+      throw new Error('Ошибка активации бонуса');
+    }
+
+    if (type === 'coins') {
+      await User.updateOne({ userId }, { $inc: { coins: value } });
+    } else if (type === 'hourly_income') {
+      await User.updateOne({ userId }, { $inc: { hourlyIncome: value } });
+    } else if (type === 'multiplier') {
+      await User.updateOne({ userId }, { $mul: { coins: value } });
+    }
+
+    console.log(`Bonus applied: type = ${type}, value = ${value}`);
   }
-
-  // Найти пользователя, у которого есть неиспользованный бонус в массиве gifts
-  const user = await User.findOne({
-    userId,
-    'bonuses.gifts._id': objectId,
-    'bonuses.gifts.status': 'inactive'
-  });
-
-  console.log('Found user:', user);
-
-  if (!user) {
-    throw new Error('Бонус не найден или уже использован');
-  }
-
-  // Обновляем статус бонуса на "used"
-  const updatedUser = await User.updateOne(
-    { userId, 'bonuses.gifts._id': objectId },
-    { $set: { 'bonuses.gifts.$.status': 'used' } }
-  );
-
-  console.log('Update result:', updatedUser);
-
-  if (updatedUser.modifiedCount === 0) {
-    throw new Error('Ошибка активации бонуса');
-  }
-
-  // Обновляем соответствующие поля
-  if (type === 'coins') {
-    await User.updateOne({ userId }, { $inc: { coins: value } });
-  } else if (type === 'hourly_income') {
-    await User.updateOne({ userId }, { $inc: { hourlyIncome: value } });
-  } else if (type === 'multiplier') {
-    await User.updateOne({ userId }, { $mul: { coins: value } });
-  }
-
-  console.log(`Bonus applied: type = ${type}, value = ${value}`);
-}
-
-  
-  
-  
-  
 
   fastify.post('/coins', async (request, reply) => {
     try {
