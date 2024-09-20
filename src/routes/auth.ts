@@ -66,9 +66,8 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         isPremium: userData.is_premium,
         photoUrl: userData.photo_url,
         token: token,
-        referalLink: ReferalLink,
+        referalLink: Number(ReferalLink),
       });
-
       if (ReferalLink) {
         const inviter = await User.findOne({ userId: user.referalLink });
 
