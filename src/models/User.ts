@@ -5,7 +5,7 @@ import { IBonus } from './Bonus'; // Импортируйте интерфейс
 export interface IUser extends Document {
   userId: number;
   bonuses: {
-    gifts: IBonus[]; // Обновлено на массив объектов IBonus
+    gifts: IBonus[];
     default: Array<{
       type: string;
       value: number;
@@ -27,7 +27,7 @@ export interface IUser extends Document {
   lastName?: string;
   username?: string;
   languageCode?: string;
-  isPremium: boolean;
+  isPremium?: boolean;
   photoUrl?: string;
   token: string;
 }
@@ -40,7 +40,7 @@ const UserSchema: Schema<IUser> = new Schema({
   lastName: { type: String },
   username: { type: String },
   languageCode: { type: String },
-  isPremium: { type: Boolean },
+  isPremium: { type: Boolean, default: false },
   photoUrl: { type: String },
   token: { type: String, required: true },
   bonuses: {
@@ -71,7 +71,7 @@ const UserSchema: Schema<IUser> = new Schema({
       firstName: { type: String, required: true },
       lastName: { type: String },
       photoUrl: { type: String },
-      isPremium: { type: Boolean, required: true },
+      isPremium: { type: Boolean },
     },
   ],
 });

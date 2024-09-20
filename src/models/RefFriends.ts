@@ -13,7 +13,7 @@ const RefFriendsSchema: Schema<IRefFriend> = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String },
   photoUrl: { type: String },
-  isPremium: { type: Boolean, required: true },
+  isPremium: { type: Boolean },
 });
 
 const RefFriend = mongoose.model<IRefFriend>('RefFriend', RefFriendsSchema);

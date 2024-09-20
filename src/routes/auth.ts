@@ -63,7 +63,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         lastName: userData.last_name,
         username: userData.username,
         languageCode: userData.language_code,
-        isPremium: userData.is_premium,
+        isPremium: userData.is_premium ?? false,
         photoUrl: userData.photo_url,
         token: token,
         referalLink: ReferalLink,
@@ -77,7 +77,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
             firstName: user.firstName,
             lastName: user.lastName,
             photoUrl: user.photoUrl,
-            isPremium: user.isPremium,
+            isPremium: user.isPremium ?? false,
           });
 
           inviter.hourlyIncome += user.isPremium ? 0.050 : 0.010;
