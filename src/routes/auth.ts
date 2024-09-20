@@ -34,6 +34,8 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     const { initData } = request.body;
 
     const validatedData = validateTelegramData(initData);
+    console.log(validatedData);
+    console.log(validatedData?.start_param);
 
     if (!validatedData) {
       reply.status(400).send({ error: 'Invalid Telegram data' });
