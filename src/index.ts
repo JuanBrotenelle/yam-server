@@ -14,6 +14,8 @@ dotenv.config();
 
 const fastify = Fastify({ logger: true });
 
+fastify.register(fastifyCookie);
+
 fastify.register(jwt, {
   secret: '8dSSH2kdc21mMD4'
 });
@@ -22,8 +24,6 @@ fastify.register(jwt, {
 fastify.get('/healthcheck', async (request, reply) => {
     return { status: 'ok' };
   });
-
-fastify.register(fastifyCookie);
 
 fastify.get('/set-cookie', (request, reply) => {
   reply
@@ -41,6 +41,7 @@ fastify.register(cors, {
     origin: 'https://yamton.space',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
 connectDB();

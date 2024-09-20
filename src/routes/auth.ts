@@ -105,7 +105,13 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     user = await User.findOne({ userId: userData.id });
 
-    reply.send({
+    reply.setCookie('exampleCookie', user?.token ?? '', {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 3600,
+    }).send({
       userId: user?.userId,
       token: user?.token,
       referals: user?.referals,
