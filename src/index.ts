@@ -7,6 +7,7 @@ import './cronJobs';
 import coins from './routes/coins';
 import totalCoins from './routes/totalcoins';
 import jwt from 'fastify-jwt';
+import fastifyCookie from 'fastify-cookie';
 
 
 dotenv.config();
@@ -21,7 +22,20 @@ fastify.register(jwt, {
 fastify.get('/healthcheck', async (request, reply) => {
     return { status: 'ok' };
   });
-  
+
+fastify.register(fastifyCookie);
+
+fastify.get('/set-cookie', (request, reply) => {
+  reply
+    .setCookie('exampleCookie', 'cookieValue', {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 3600
+    })
+    .send({ message: 'Cookie is ready.' });
+});
 
 fastify.register(cors, {
     origin: 'https://yamton.space',
