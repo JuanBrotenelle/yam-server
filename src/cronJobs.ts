@@ -4,15 +4,12 @@ import { User } from './models/User';
 import { updateTotalCoins } from './modules/totalCoinsstore';
 
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('59 23 * * *', async () => {
   try {
     const users = await User.find();
     for (const user of users) {
-      console.log(`Обрабатываю пользователя с ID: ${user.userId}`);
       await clearInactiveBonuses(user.userId);
-      console.log(`Неактивные бонусы для пользователя ${user.userId} очищены`);
       await assignBonuses(user.userId);
-      console.log(`Новые бонусы для пользователя ${user.userId} начислены`);
     }
   } catch (error) {
     console.error('Ошибка при начислении бонусов:', error);

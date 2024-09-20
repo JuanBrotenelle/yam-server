@@ -40,7 +40,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
       return;
     }
 
-    const ReferalLink = validatedData.start_params;
+    const ReferalLink = validatedData.start_param;
     const userData = validatedData.user;
 
     if (!userData.id) {
