@@ -11,7 +11,7 @@ import jwt from 'fastify-jwt';
 
 dotenv.config();
 
-const fastify = Fastify({ logger: false });
+const fastify = Fastify({ logger: true });
 
 fastify.register(jwt, {
   secret: '8dSSH2kdc21mMD4'
