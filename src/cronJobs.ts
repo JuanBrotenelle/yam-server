@@ -4,7 +4,7 @@ import { User } from './models/User';
 import { updateTotalCoins } from './modules/totalCoinsstore';
 
 
-cron.schedule('0 * * * *', async () => {
+cron.schedule('* * * * *', async () => {
   try {
     const users = await User.find();
     for (const user of users) {
