@@ -34,8 +34,6 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     const { initData } = request.body;
 
     const validatedData = validateTelegramData(initData);
-    console.log(validatedData);
-    console.log(validatedData?.start_param);
 
     if (!validatedData) {
       reply.status(400).send({ error: 'Invalid Telegram data' });
@@ -71,7 +69,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         referalLink: ReferalLink,
       });
       if (ReferalLink) {
-        const inviter = await User.findOne({ userId: Number(user.referalLink) });
+        const inviter = await User.findOne({ userId: Number(ReferalLink) });
 
         if (inviter) {
           inviter.referals.push({
