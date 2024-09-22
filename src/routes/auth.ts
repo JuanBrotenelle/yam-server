@@ -2,7 +2,7 @@ import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
 import { User } from '../models/User';
 import { assignBonuses } from '../controllers/bonusGenerator';
 import Bonus, { IBonus } from '../models/Bonus';
-import validateTelegramData from '../controllers/validateTelegramData'; // Импорт функции валидации
+import validateTelegramData from '../controllers/validateTelegramData';
 
 async function syncGiftsBonuses(userId: number) {
   try {

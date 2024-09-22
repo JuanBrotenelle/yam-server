@@ -35,7 +35,7 @@ function validateTelegramData(initData: string): InitData | null {
   }
 
   const dataCheckString = Array.from(params.entries())
-    .filter(([key]) => key !== 'hash') // Исключаем хэш
+    .filter(([key]) => key !== 'hash')
     .map(([key, value]) => `${key}=${value}`)
     .sort()
     .join('\n');

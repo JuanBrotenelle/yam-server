@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { IBonus } from './Bonus'; // Импортируйте интерфейс IBonus
+import { IBonus } from './Bonus';
 
-// Интерфейс для пользователя
 export interface IUser extends Document {
   userId: number;
   bonuses: {
@@ -32,7 +31,6 @@ export interface IUser extends Document {
   token: string;
 }
 
-// Схема пользователя
 const UserSchema: Schema<IUser> = new Schema({
   userId: { type: Number, required: true, unique: true },
   isBot: { type: Boolean, required: true },
