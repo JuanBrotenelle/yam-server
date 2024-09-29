@@ -16,10 +16,10 @@ interface WebAppUser {
 interface InitData {
   query_id: string;
   user: WebAppUser;
-  auth_date: number;
+  auth_date: Date;
   hash: string;
   start_param?: string;
-  [key: string]: string | WebAppUser | number | undefined;
+  [key: string]: string | WebAppUser | number | undefined | Date;
 }
 
 const BOT_TOKEN = process.env.BOT_TOKEN || '';
@@ -54,7 +54,7 @@ function validateTelegramData(initData: string): InitData | null {
     const result: InitData = {
       query_id: params.get('query_id') || '',
       user: JSON.parse(decodeURIComponent(params.get('user') || '{}')) as WebAppUser,
-      auth_date: parseInt(params.get('auth_date') || '0', 10),
+      auth_date: new Date(parseInt(params.get('auth_date') || '0', 10) * 1000),
       hash: hash,
       start_param: params.get('start_param') || '',
     };

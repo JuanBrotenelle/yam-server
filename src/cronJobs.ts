@@ -1,51 +1,25 @@
 import cron from 'node-cron';
-import { assignBonuses, clearInactiveBonuses } from './controllers/bonusGenerator';
 import { User } from './models/User';
-import { updateTotalCoins } from './modules/totalCoinsstore';
 
+cron.schedule('0 0 * * *', async () => {
+  const today = new Date();
+  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const endOfDay = startOfDay + 24 * 60 * 60 * 1000;
 
-cron.schedule('59 23 * * *', async () => {
-  try {
-    const users = await User.find();
-    for (const user of users) {
-      await clearInactiveBonuses(user.userId);
-      await assignBonuses(user.userId);
-    }
-  } catch (error) {
-    console.error('Ошибка при начислении бонусов:', error);
-  }
-});
+  const users = await User.find({});
 
-cron.schedule('0 * * * *', async () => {
+  for (const user of users) {
+    const lastAuthTime = user.dateData.lastAuth.getTime();
 
-  try {
-    const users = await User.find({ hourlyIncome: { $gt: 0 } });
-
-    for (const user of users) {
-      user.coins += user.hourlyIncome;
-
+    if (lastAuthTime >= startOfDay && lastAuthTime < endOfDay) {
+      user.dateData.daysStreak += 1;
+      user.dateData.totalDaysInGame += 1;
+      await user.save();
+    } else {
+      user.dateData.totalDaysInGame += 1;
       await user.save();
     }
-
-  } catch (error) {
-    console.error('Ошибка при начислении монет:', error);
   }
+
+  console.log('Daily streak update completed.');
 });
-
-cron.schedule('* * * * *', async () => {
-
-  try {
-    const result = await User.aggregate([
-      { $group: { _id: null, total: { $sum: "$coins" } } }
-    ]);
-
-    if (result.length > 0) {
-      updateTotalCoins(result[0].total);
-    } else {
-      updateTotalCoins(0);
-    }
-
-  } catch (error) {
-    console.error('Ошибка при подсчете общего количества монет:', error);
-  }
-});;

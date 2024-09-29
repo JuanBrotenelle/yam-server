@@ -1,24 +1,22 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
-export interface IBonus extends Document {
+export interface ITask extends Document {
   _id: Types.ObjectId;
-  type: string;
   value: number;
   photoUrl?: string;
   title?: string;
   status: 'inactive' | 'used';
-  receivedAt: Date;
+  url: string;
 }
 
-const BonusSchema: Schema<IBonus> = new Schema({
-  type: { type: String, required: true },
+const TaskSchema: Schema<ITask> = new Schema({
   value: { type: Number, required: true },
   photoUrl: { type: String },
   title: { type: String },
   status: { type: String, enum: ['inactive', 'used'], default: 'inactive' },
-  receivedAt: { type: Date, default: Date.now },
+  url: { type: String },
 });
 
-const Bonus = mongoose.model<IBonus>('Bonus', BonusSchema);
+const Task = mongoose.model<ITask>('Tasks', TaskSchema);
 
-export default Bonus;
+export default Task;
