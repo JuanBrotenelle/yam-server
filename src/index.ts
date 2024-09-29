@@ -10,7 +10,7 @@ import Upgrades from './routes/upgrades';
 import LastAuthWebSocket from './routes/lastAuth';
 import './cronJobs';
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: false });
 
 fastify.register(fastifyCookie);
 
