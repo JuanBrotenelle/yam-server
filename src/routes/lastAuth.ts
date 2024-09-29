@@ -1,21 +1,21 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { User } from '../models/User';
 
-interface LastAuthRequestBody {
+interface LastAuthQueryParams {
   userId: number;
   authToken: string;
 }
 
 export default async function routes(fastify: FastifyInstance) {
-  fastify.post('/lastauth', async (request: FastifyRequest<{ Body: LastAuthRequestBody }>, reply: FastifyReply) => {
-    const { userId, authToken } = request.body;
+  fastify.get('/lastauth', async (request: FastifyRequest<{ Querystring: LastAuthQueryParams }>, reply: FastifyReply) => {
+    const { userId, authToken } = request.query;
 
     if (!userId || !authToken) {
       return reply.status(400).send({ success: false, message: 'Invalid parameters' });
     }
 
     try {
-      const user = await User.findOne({ 'user.userId': userId, 'authToken': authToken });
+      const user = await User.findOne({ 'user.userId': Number(userId), 'authToken': authToken });
       if (!user) {
         return reply.status(400).send({ success: false, message: 'User not found' });
       }
@@ -25,8 +25,8 @@ export default async function routes(fastify: FastifyInstance) {
 
       await user.save();
     } catch (error) {
-      console.error('Ошибка при обработке запроса:', error);
-      reply.status(500).send({ success: false, message: 'Ошибка сервера' });
+      console.error('Error processing request:', error);
+      reply.status(500).send({ success: false, message: 'Server error' });
     }
 
     reply.status(200).send({ success: true });
